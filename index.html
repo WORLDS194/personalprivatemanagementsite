@@ -11,13 +11,13 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bubbles', sans-serif; /* Fun, friendly fonts */
+            background: linear-gradient(235deg, #7ef08a 0%, #7bcfe8 100%); /* Bright yellow to pink gradient */
+            color: #1e293b;
         }
 
-        /* Whimsical Access Screen Layout */
-        .setup-container {
+        /* Whimsical & Fun Welcome Container */
+        .welcome-container {
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -26,73 +26,73 @@
             padding: 20px;
             text-align: center;
             box-sizing: border-box;
-            background: radial-gradient(circle, #1a1a2e 0%, #121212 100%);
         }
 
-        .setup-box {
+        .welcome-box {
             max-width: 500px;
-            background-color: #1e1e24;
-            border: 2px dashed #ff4a4a;
+            background-color: #ffffff;
+            border: 4px solid #000; /* Black */
             padding: 40px 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+            border-radius: 24px; /* Big rounded corners */
+            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.2);
         }
 
         h1 {
-            color: #ff4a4a;
-            font-size: 32px;
+            color: #f43f5e;
+            font-size: 38px;
             margin-top: 0;
-            letter-spacing: -0.5px;
+            margin-bottom: 15px;
+            transform: rotate(-2px); /* Slight fun tilt */
         }
 
         p {
-            color: #b3b3b3;
+            color: #475569;
             line-height: 1.6;
-            font-size: 16px;
+            font-size: 18px;
             margin-bottom: 30px;
         }
 
-        /* Styled Upload Button */
+        /* Big, Friendly Button */
         .file-label {
             display: inline-block;
-            background-color: #ff4a4a;
+            background-color: #28b6d4; /* Vibrant cyan */
             color: white;
-            padding: 14px 28px;
-            font-size: 16px;
+            padding: 16px 32px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 50px; /* Capsule shape */
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px 10px rgba(255, 74, 74, 0.3);
+            box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
         }
 
         .file-label:hover {
-            background-color: #e03838;
-            transform: translateY(-2px);
+            background-color: #0891b2;
+            transform: scale(1.05); /* Pop out slightly on hover */
         }
 
         input[type="file"] {
             display: none;
         }
 
-        /* Reset Button (Hidden in bottom corner for site control) */
+        /* Soft, friendly reset button */
         #resetBtn {
             position: fixed;
-            bottom: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #888;
+            bottom: 20px;
+            right: 20px;
+            background: #cbd5e1;
+            color: #475569;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
             cursor: pointer;
             display: none;
             z-index: 9999;
         }
         
         #resetBtn:hover {
-            background: #ff4a4a;
+            background: #f43f5e;
             color: white;
         }
 
@@ -108,27 +108,30 @@
 </head>
 <body>
 
-    <!-- Access Request View -->
-    <div id="setupScreen" class="setup-container">
-        <div class="setup-box">
-            <h1>Oops! Whimsy Me!</h1>
-            <p>You don't have access. You need an onn disk drive with a folder named Management and index.html inside it to technically own the site.</p>
+    <!-- Bright and Cheerful Welcome Screen -->
+    <div id="setupScreen" class="welcome-container">
+        <div class="welcome-box">
+            <h1>Oops! Whimsy Me! ✨</h1>
+            <p>
+                Welcome! Want to own this exact web domain? 🎈<br><br>
+                Just upload your own HTML file right here. It will immediately transform into your personal site—exclusively visible on your computer!
+            </p>
             
             <label class="file-label">
-                Upload index.html
+                 Pick Your HTML File 
                 <input type="file" id="fileImporter" accept=".html" onchange="handleFileImport(this)">
             </label>
         </div>
     </div>
 
     <!-- Hidden control to wipe the space -->
-    <button id="resetBtn" onclick="clearStoredSite()">Reset Domain</button>
+    <button id="resetBtn" onclick="clearStoredSite()">Change My Site</button>
 
     <!-- Content Target -->
     <iframe id="contentViewer" title="Whimsy Me Custom View"></iframe>
 
     <script>
-        // Check local storage immediately when the visitor arrives
+        // Check local storage memory immediately on page execution
         window.onload = function() {
             const savedHTML = localStorage.getItem('userManagementSite');
             if (savedHTML) {
@@ -136,25 +139,25 @@
             }
         };
 
-        // Reads the file when imported
+        // Processes the file upload
         function handleFileImport(input) {
-            const file = input.files[0];
+            const file = input.files;
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const htmlContent = e.target.result;
                 
-                // Save it right inside the user's browser cache
+                // Write content permanently into visitor browser allocation space
                 localStorage.setItem('userManagementSite', htmlContent);
                 
-                // Switch the viewport instantly
+                // Boom! Instantly swap out views
                 renderSite(htmlContent);
             };
             reader.readAsText(file);
         }
 
-        // Switches view from default text to the uploaded site
+        // Handles container manipulation from setup view to user canvas
         function renderSite(htmlData) {
             const setupScreen = document.getElementById('setupScreen');
             const viewer = document.getElementById('contentViewer');
@@ -162,7 +165,7 @@
 
             setupScreen.style.display = 'none';
             viewer.style.display = 'block';
-            resetBtn.style.display = 'block'; // Show reset switch once content is active
+            resetBtn.style.display = 'block'; 
             
             const doc = viewer.contentDocument || viewer.contentWindow.document;
             doc.open();
@@ -170,9 +173,9 @@
             doc.close();
         }
 
-        // Clears out local storage so they can start fresh
+        // Clears out the storage so they can start fresh
         function clearStoredSite() {
-            if (confirm("Are you sure you want to release ownership of this domain?")) {
+            if (confirm("Want to clear your custom site and start over?")) {
                 localStorage.removeItem('userManagementSite');
                 window.location.reload();
             }
