@@ -11,12 +11,11 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bubbles', sans-serif; /* Fun, friendly fonts */
-            background: linear-gradient(235deg, #7ef08a 0%, #7bcfe8 100%); /* Bright yellow to pink gradient */
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bubbles', sans-serif;
+            background: linear-gradient(235deg, #7ef08a 0%, #7bcfe8 100%); /* Your green to blue gradient */
             color: #1e293b;
         }
 
-        /* Whimsical & Fun Welcome Container */
         .welcome-container {
             display: flex;
             flex-direction: column;
@@ -31,9 +30,9 @@
         .welcome-box {
             max-width: 500px;
             background-color: #ffffff;
-            border: 4px solid #000; /* Black */
+            border: 4px solid #000; /* Your clean black border */
             padding: 40px 30px;
-            border-radius: 24px; /* Big rounded corners */
+            border-radius: 24px;
             box-shadow: 0 10px 25px rgba(244, 63, 94, 0.2);
         }
 
@@ -42,7 +41,7 @@
             font-size: 38px;
             margin-top: 0;
             margin-bottom: 15px;
-            transform: rotate(-2px); /* Slight fun tilt */
+            transform: rotate(-2px);
         }
 
         p {
@@ -52,15 +51,14 @@
             margin-bottom: 30px;
         }
 
-        /* Big, Friendly Button */
         .file-label {
             display: inline-block;
-            background-color: #28b6d4; /* Vibrant cyan */
+            background-color: #28b6d4;
             color: white;
             padding: 16px 32px;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 50px; /* Capsule shape */
+            border-radius: 50px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
             box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
@@ -68,14 +66,13 @@
 
         .file-label:hover {
             background-color: #0891b2;
-            transform: scale(1.05); /* Pop out slightly on hover */
+            transform: scale(1.05);
         }
 
         input[type="file"] {
             display: none;
         }
 
-        /* Soft, friendly reset button */
         #resetBtn {
             position: fixed;
             bottom: 20px;
@@ -96,7 +93,6 @@
             color: white;
         }
 
-        /* The Full-Screen Viewport */
         #contentViewer {
             width: 100%;
             height: 100%;
@@ -108,7 +104,6 @@
 </head>
 <body>
 
-    <!-- Bright and Cheerful Welcome Screen -->
     <div id="setupScreen" class="welcome-container">
         <div class="welcome-box">
             <h1>Oops! Whimsy Me! ✨</h1>
@@ -116,22 +111,18 @@
                 Welcome! Want to own this exact web domain? 🎈<br><br>
                 Just upload your own HTML file right here. It will immediately transform into your personal site—exclusively visible on your computer!
             </p>
-            
             <label class="file-label">
-                 Pick Your HTML File 
+                Pick Your HTML File
                 <input type="file" id="fileImporter" accept=".html" onchange="handleFileImport(this)">
             </label>
         </div>
     </div>
 
-    <!-- Hidden control to wipe the space -->
     <button id="resetBtn" onclick="clearStoredSite()">Change My Site</button>
 
-    <!-- Content Target -->
     <iframe id="contentViewer" title="Whimsy Me Custom View"></iframe>
 
     <script>
-        // Check local storage memory immediately on page execution
         window.onload = function() {
             const savedHTML = localStorage.getItem('userManagementSite');
             if (savedHTML) {
@@ -139,33 +130,33 @@
             }
         };
 
-        // Processes the file upload
+        // FIXED FUNCTION
         function handleFileImport(input) {
-            const file = input.files;
+            // Target the specific first file within the array list [0]
+            const file = input.files[0]; 
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const htmlContent = e.target.result;
-                
-                // Write content permanently into visitor browser allocation space
                 localStorage.setItem('userManagementSite', htmlContent);
-                
-                // Boom! Instantly swap out views
                 renderSite(htmlContent);
             };
-            reader.readAsText(file);
+            reader.readAsText(file); // Successfully processes the Blob file object now!
         }
 
-        // Handles container manipulation from setup view to user canvas
+        document.getElementById('fileImporter').addEventListener('change', function() {
+            handleFileImport(this);
+        });
+
         function renderSite(htmlData) {
             const setupScreen = document.getElementById('setupScreen');
             const viewer = document.getElementById('contentViewer');
             const resetBtn = document.getElementById('resetBtn');
-
+            
             setupScreen.style.display = 'none';
             viewer.style.display = 'block';
-            resetBtn.style.display = 'block'; 
+            resetBtn.style.display = 'block';
             
             const doc = viewer.contentDocument || viewer.contentWindow.document;
             doc.open();
@@ -173,7 +164,6 @@
             doc.close();
         }
 
-        // Clears out the storage so they can start fresh
         function clearStoredSite() {
             if (confirm("Want to clear your custom site and start over?")) {
                 localStorage.removeItem('userManagementSite');
