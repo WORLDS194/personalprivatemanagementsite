@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brody Management</title>
+    <title>Oops! Whimsy Me!</title>
     <style>
         html, body {
             margin: 0;
@@ -16,7 +16,7 @@
             color: #ffffff;
         }
 
-        /* Access screen container */
+        /* Whimsical Access Screen Layout */
         .setup-container {
             display: flex;
             flex-direction: column;
@@ -26,52 +26,77 @@
             padding: 20px;
             text-align: center;
             box-sizing: border-box;
+            background: radial-gradient(circle, #1a1a2e 0%, #121212 100%);
         }
 
         .setup-box {
             max-width: 500px;
-            background-color: #1e1e1e;
-            border: 1px solid #333333;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            background-color: #1e1e24;
+            border: 2px dashed #ff4a4a;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
         }
 
         h1 {
             color: #ff4a4a;
-            font-size: 24px;
+            font-size: 32px;
             margin-top: 0;
+            letter-spacing: -0.5px;
         }
 
         p {
             color: #b3b3b3;
             line-height: 1.6;
             font-size: 16px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
-        /* Styling the file input to look like a clean button */
+        /* Styled Upload Button */
         .file-label {
             display: inline-block;
-            background-color: #007bff;
+            background-color: #ff4a4a;
             color: white;
-            padding: 12px 24px;
+            padding: 14px 28px;
             font-size: 16px;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 10px rgba(255, 74, 74, 0.3);
         }
 
         .file-label:hover {
-            background-color: #0056b3;
+            background-color: #e03838;
+            transform: translateY(-2px);
         }
 
         input[type="file"] {
-            display: none; /* Hide the ugly default browser file input */
+            display: none;
         }
 
-        /* The full-screen viewport display */
+        /* Reset Button (Hidden in bottom corner for site control) */
+        #resetBtn {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+            z-index: 9999;
+        }
+        
+        #resetBtn:hover {
+            background: #ff4a4a;
+            color: white;
+        }
+
+        /* The Full-Screen Viewport */
         #contentViewer {
             width: 100%;
             height: 100%;
@@ -83,24 +108,27 @@
 </head>
 <body>
 
-    <!-- Access Request View (Shows only if no file is stored locally) -->
+    <!-- Access Request View -->
     <div id="setupScreen" class="setup-container">
         <div class="setup-box">
-            <h1>Access Required</h1>
+            <h1>Oops! Whimsy Me!</h1>
             <p>You don't have access. You need an onn disk drive with a folder named Management and index.html inside it to technically own the site.</p>
             
             <label class="file-label">
-                Import index.html
+                Upload index.html
                 <input type="file" id="fileImporter" accept=".html" onchange="handleFileImport(this)">
             </label>
         </div>
     </div>
 
-    <!-- Container where their private index.html will safely render -->
-    <iframe id="contentViewer" title="Management Panel"></iframe>
+    <!-- Hidden control to wipe the space -->
+    <button id="resetBtn" onclick="clearStoredSite()">Reset Domain</button>
+
+    <!-- Content Target -->
+    <iframe id="contentViewer" title="Whimsy Me Custom View"></iframe>
 
     <script>
-        // On page load, immediately check if this user already imported a file previously
+        // Check local storage immediately when the visitor arrives
         window.onload = function() {
             const savedHTML = localStorage.getItem('userManagementSite');
             if (savedHTML) {
@@ -108,7 +136,7 @@
             }
         };
 
-        // Handles reading and saving the file when they click the button
+        // Reads the file when imported
         function handleFileImport(input) {
             const file = input.files[0];
             if (!file) return;
@@ -117,27 +145,37 @@
             reader.onload = function(e) {
                 const htmlContent = e.target.result;
                 
-                // Save the content directly to the user's browser storage
+                // Save it right inside the user's browser cache
                 localStorage.setItem('userManagementSite', htmlContent);
                 
-                // Render it instantly
+                // Switch the viewport instantly
                 renderSite(htmlContent);
             };
             reader.readAsText(file);
         }
 
-        // Injects the saved HTML into the full-screen iframe
+        // Switches view from default text to the uploaded site
         function renderSite(htmlData) {
             const setupScreen = document.getElementById('setupScreen');
             const viewer = document.getElementById('contentViewer');
+            const resetBtn = document.getElementById('resetBtn');
 
             setupScreen.style.display = 'none';
             viewer.style.display = 'block';
+            resetBtn.style.display = 'block'; // Show reset switch once content is active
             
             const doc = viewer.contentDocument || viewer.contentWindow.document;
             doc.open();
             doc.write(htmlData);
             doc.close();
+        }
+
+        // Clears out local storage so they can start fresh
+        function clearStoredSite() {
+            if (confirm("Are you sure you want to release ownership of this domain?")) {
+                localStorage.removeItem('userManagementSite');
+                window.location.reload();
+            }
         }
     </script>
 </body>
