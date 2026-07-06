@@ -5,26 +5,128 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brody Management</title>
     <style>
-        /* Remove default browser margins and hide scrollbars on the main page */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; 
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
         }
-        /* Force the iframe to fill the exact size of the browser screen */
-        iframe {
+
+        /* Container for the permission prompt */
+        .setup-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .setup-box {
+            max-width: 500px;
+            background-color: #1e1e1e;
+            border: 1px solid #333333;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            color: #ff4a4a;
+            font-size: 24px;
+            margin-top: 0;
+        }
+
+        p {
+            color: #b3b3b3;
+            line-height: 1.6;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* The viewport display for the loaded content */
+        #contentViewer {
             width: 100%;
             height: 100%;
             border: none;
-            display: block;
+            display: none;
+            background: white;
         }
     </style>
 </head>
 <body>
 
-    <iframe src="file:///Volumes/onn Disk/management/index.html" title="Full Screen Website"></iframe>
+    <!-- Access Request View -->
+    <div id="setupScreen" class="setup-container">
+        <div class="setup-box">
+            <h1>Access Required</h1>
+            <p id="statusMessage">You don't have access. You need an onn disk drive with a folder named Management and index.html inside it to technically own the site.</p>
+            <button class="btn" onclick="verifyAndLoadFolder()">Connect Drive Folder</button>
+        </div>
+    </div>
 
+    <!-- Container where the index.html content will safely render -->
+    <iframe id="contentViewer" title="Management Panel"></iframe>
+
+    <script>
+        async function verifyAndLoadFolder() {
+            const statusText = document.getElementById('statusMessage');
+            const setupScreen = document.getElementById('setupScreen');
+            const viewer = document.getElementById('contentViewer');
+
+            try {
+                // 1. Ask user to select the 'Management' folder explicitly
+                // This triggers a native browser permission pop-up
+                const directoryHandle = await window.showDirectoryPicker();
+
+                // Verification: Force the folder name to be exactly 'management' (case-insensitive)
+                if (directoryHandle.name.toLowerCase() !== 'management') {
+                    alert("Error: You must select the folder named 'Management'.");
+                    return;
+                }
+
+                // 2. Look for index.html inside that folder
+                const fileHandle = await directoryHandle.getFileHandle('index.html');
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+
+                // 3. Inject the local file safely into the full-screen view
+                setupScreen.style.display = 'none';
+                viewer.style.display = 'block';
+                
+                const doc = viewer.contentDocument || viewer.contentWindow.document;
+                doc.open();
+                doc.write(text);
+                doc.close();
+
+            } catch (err) {
+                // Handle denial, missing files, or cancellation
+                console.error(err);
+                alert("Verification Failed: Make sure you selected the correct folder and that index.html exists inside it.");
+            }
+        }
+    </script>
 </body>
 </html>
