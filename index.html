@@ -16,7 +16,7 @@
             color: #ffffff;
         }
 
-        /* Container for the permission prompt */
+        /* Access screen container */
         .setup-container {
             display: flex;
             flex-direction: column;
@@ -50,10 +50,11 @@
             margin-bottom: 25px;
         }
 
-        .btn {
+        /* Styling the file input to look like a clean button */
+        .file-label {
+            display: inline-block;
             background-color: #007bff;
             color: white;
-            border: none;
             padding: 12px 24px;
             font-size: 16px;
             font-weight: bold;
@@ -62,11 +63,15 @@
             transition: background 0.2s;
         }
 
-        .btn:hover {
+        .file-label:hover {
             background-color: #0056b3;
         }
 
-        /* The viewport display for the loaded content */
+        input[type="file"] {
+            display: none; /* Hide the ugly default browser file input */
+        }
+
+        /* The full-screen viewport display */
         #contentViewer {
             width: 100%;
             height: 100%;
@@ -78,54 +83,61 @@
 </head>
 <body>
 
-    <!-- Access Request View -->
+    <!-- Access Request View (Shows only if no file is stored locally) -->
     <div id="setupScreen" class="setup-container">
         <div class="setup-box">
             <h1>Access Required</h1>
-            <p id="statusMessage">You don't have access. You need an onn disk drive with a folder named Management and index.html inside it to technically own the site.</p>
-            <button class="btn" onclick="verifyAndLoadFolder()">Connect Drive Folder</button>
+            <p>You don't have access. You need an onn disk drive with a folder named Management and index.html inside it to technically own the site.</p>
+            
+            <label class="file-label">
+                Import index.html
+                <input type="file" id="fileImporter" accept=".html" onchange="handleFileImport(this)">
+            </label>
         </div>
     </div>
 
-    <!-- Container where the index.html content will safely render -->
+    <!-- Container where their private index.html will safely render -->
     <iframe id="contentViewer" title="Management Panel"></iframe>
 
     <script>
-        async function verifyAndLoadFolder() {
-            const statusText = document.getElementById('statusMessage');
+        // On page load, immediately check if this user already imported a file previously
+        window.onload = function() {
+            const savedHTML = localStorage.getItem('userManagementSite');
+            if (savedHTML) {
+                renderSite(savedHTML);
+            }
+        };
+
+        // Handles reading and saving the file when they click the button
+        function handleFileImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const htmlContent = e.target.result;
+                
+                // Save the content directly to the user's browser storage
+                localStorage.setItem('userManagementSite', htmlContent);
+                
+                // Render it instantly
+                renderSite(htmlContent);
+            };
+            reader.readAsText(file);
+        }
+
+        // Injects the saved HTML into the full-screen iframe
+        function renderSite(htmlData) {
             const setupScreen = document.getElementById('setupScreen');
             const viewer = document.getElementById('contentViewer');
 
-            try {
-                // 1. Ask user to select the 'Management' folder explicitly
-                // This triggers a native browser permission pop-up
-                const directoryHandle = await window.showDirectoryPicker();
-
-                // Verification: Force the folder name to be exactly 'management' (case-insensitive)
-                if (directoryHandle.name.toLowerCase() !== 'management') {
-                    alert("Error: You must select the folder named 'Management'.");
-                    return;
-                }
-
-                // 2. Look for index.html inside that folder
-                const fileHandle = await directoryHandle.getFileHandle('index.html');
-                const file = await fileHandle.getFile();
-                const text = await file.text();
-
-                // 3. Inject the local file safely into the full-screen view
-                setupScreen.style.display = 'none';
-                viewer.style.display = 'block';
-                
-                const doc = viewer.contentDocument || viewer.contentWindow.document;
-                doc.open();
-                doc.write(text);
-                doc.close();
-
-            } catch (err) {
-                // Handle denial, missing files, or cancellation
-                console.error(err);
-                alert("Verification Failed: Make sure you selected the correct folder and that index.html exists inside it.");
-            }
+            setupScreen.style.display = 'none';
+            viewer.style.display = 'block';
+            
+            const doc = viewer.contentDocument || viewer.contentWindow.document;
+            doc.open();
+            doc.write(htmlData);
+            doc.close();
         }
     </script>
 </body>
